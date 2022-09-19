@@ -5,6 +5,8 @@
 
 <!-- badges: start -->
 
+[![CRAN
+status](https://www.r-pkg.org/badges/version/timbr)](https://CRAN.R-project.org/package=timbr)
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![R-CMD-check](https://github.com/UchidaMizuki/timbr/workflows/R-CMD-check/badge.svg)](https://github.com/UchidaMizuki/timbr/actions)
@@ -22,6 +24,10 @@ You can install the development version of timbr from
 [GitHub](https://github.com/) with:
 
 ``` r
+# the released version from CRAN:
+install.packages("timbr")
+
+# the development version from GitHub:
 # install.packages("devtools")
 devtools::install_github("UchidaMizuki/timbr")
 ```
@@ -54,7 +60,7 @@ fr
 #> # A forest: 8 nodes and 1 feature
 #> # Groups:   key1, key2 [4]
 #> # Roots:    key3 [8]
-#>   key1  key2  node     value
+#>   key1  key2  .        value
 #>   <chr> <chr> <node>   <int>
 #> 1 a     a     <key3> a     1
 #> 2 a     a     <key3> b     2
@@ -72,7 +78,7 @@ fr_sum <- fr %>%
 fr_sum
 #> # A forest: 14 nodes and 1 feature
 #> # Roots:    key1 [2]
-#>   node     value
+#>   .        value
 #>   <node>   <int>
 #> 1 <key1> a    10
 #> 2 <key1> b    26
@@ -81,7 +87,7 @@ children(fr_sum)
 #> # A forest: 12 nodes and 1 feature
 #> # Groups:   key1 [2]
 #> # Roots:    key2 [4]
-#>   key1  node     value
+#>   key1  .        value
 #>   <chr> <node>   <int>
 #> 1 a     <key2> a     3
 #> 2 a     <key2> b     7
@@ -92,7 +98,7 @@ fr_sum %>%
   climb(key3)
 #> # A forest: 8 nodes and 1 feature
 #> # Roots:    key3 [8]
-#>   node     value
+#>   .        value
 #>   <node>   <int>
 #> 1 <key3> a     1
 #> 2 <key3> b     2

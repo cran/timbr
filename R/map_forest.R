@@ -1,6 +1,6 @@
-#' Modify a forest hierarchically
+#' Apply a function hierarchically to a forest
 #'
-#' Modifies nodes of a forest in the climbing or descending direction.
+#' Apply a function hierarchically to a forest in the climbing or descending direction.
 #'
 #' @param .x A forest
 #' @param .f A function, formula, or vector (not necessarily atomic).
@@ -9,27 +9,26 @@
 #'
 #' @return A forest.
 #'
-#' @importFrom purrr modify
 #' @export
-modify.forest <- function(.x, .f, ..., .climb = FALSE) {
+map_forest <- function(.x, .f, ..., .climb = FALSE) {
   .f <- purrr::as_mapper(.f, ...)
 
   nodes <- .x$nodes
-  node_names <- nodes$node$name
-  node_parents <- nodes$node$parent
+  node_names <- nodes$.$name
+  node_parents <- nodes$.$parent
   node_data <- drop_node(nodes)
 
   grps <- vec_group_loc(node_parents)
-  grps <- vec_slice(grps, !is.na(grps$key))
+  grps <- vec_slice(grps, !vec_equal_na(grps$key))
+  grps <- vec_slice(grps,
+                    vec_order(grps$key,
+                              direction = if (.climb) "desc" else "asc"))
 
-  sizes_rle <- rle(vec_slice(node_names, grps$key))$lengths
+  rle <- vec_group_rle(vec_slice(node_names, grps$key))
+  sizes_rle <- field(rle, "length")
   inits_rle <- cumsum(sizes_rle) - sizes_rle
 
   loc <- vec_seq_along(sizes_rle)
-
-  if (.climb) {
-    loc <- rev(loc)
-  }
 
   for (i in loc) {
     size_rle <- sizes_rle[[i]]
@@ -48,7 +47,6 @@ modify.forest <- function(.x, .f, ..., .climb = FALSE) {
 
     for (j in rle_locs) {
       if (.climb) {
-        j <- size_rle - j + 1L
         new_node_data[[j]] <- .f(children[[j]], parents[[j]])
       } else {
         new_node_data[[j]] <- .f(parents[[j]], children[[j]])
