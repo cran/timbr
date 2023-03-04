@@ -9,9 +9,9 @@
 status](https://www.r-pkg.org/badges/version/timbr)](https://CRAN.R-project.org/package=timbr)
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![R-CMD-check](https://github.com/UchidaMizuki/timbr/workflows/R-CMD-check/badge.svg)](https://github.com/UchidaMizuki/timbr/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/UchidaMizuki/timbr/branch/main/graph/badge.svg)](https://app.codecov.io/gh/UchidaMizuki/timbr?branch=main)
+[![R-CMD-check](https://github.com/UchidaMizuki/timbr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/UchidaMizuki/timbr/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 timbr provides data frames for forest (or tree) data structures. You can
@@ -32,15 +32,24 @@ install.packages("timbr")
 devtools::install_github("UchidaMizuki/timbr")
 ```
 
+## Main Functions
+
+The main functions provided by timbr are as follows,
+
+- `children()`
+- `climb()`
+- `leaves()`
+- `map_forest()`
+- `rbind()`
+
 ## tidyverse methods
 
 timbr provides some tidyverse methods as follows,
 
--   `mutate()`
--   `summarise()`
--   `select()` and `relocate()`
--   `rows_update()` and `rows_patch()`
--   `modify()`
+- `mutate()`
+- `summarise()`
+- `select()` and `relocate()`
+- `rows_update()` and `rows_patch()`
 
 ## Examples
 
@@ -52,14 +61,19 @@ library(dplyr)
 ``` r
 fr <- tidyr::expand_grid(key1 = letters[1:2],
                          key2 = letters[1:2],
-                         key3 = letters[1:2]) %>% 
-  mutate(value = row_number()) %>% 
+                         key3 = letters[1:2]) |>  
+  mutate(value = row_number()) |> 
   forest_by(key1, key2, key3)
+
+fr_sum <- fr |> 
+  summarise(value = sum(value)) |> 
+  summarise(value = sum(value))
 
 fr
 #> # A forest: 8 nodes and 1 feature
 #> # Groups:   key1, key2 [4]
-#> # Roots:    key3 [8]
+#> # Trees:
+#> #   key3 [8]
 #>   key1  key2  .        value
 #>   <chr> <chr> <node>   <int>
 #> 1 a     a     <key3> a     1
@@ -70,34 +84,33 @@ fr
 #> 6 b     a     <key3> b     6
 #> 7 b     b     <key3> a     7
 #> 8 b     b     <key3> b     8
-
-fr_sum <- fr %>% 
-  summarise(value = sum(value)) %>% 
-  summarise(value = sum(value))
-
 fr_sum
 #> # A forest: 14 nodes and 1 feature
-#> # Roots:    key1 [2]
+#> # Trees:
+#> #   key1 [2]
+#> #   └─key2 [4]
+#> #     └─key3 [8]
 #>   .        value
 #>   <node>   <int>
 #> 1 <key1> a    10
 #> 2 <key1> b    26
-
 children(fr_sum)
 #> # A forest: 12 nodes and 1 feature
 #> # Groups:   key1 [2]
-#> # Roots:    key2 [4]
+#> # Trees:
+#> #   key2 [4]
+#> #   └─key3 [8]
 #>   key1  .        value
 #>   <chr> <node>   <int>
 #> 1 a     <key2> a     3
 #> 2 a     <key2> b     7
 #> 3 b     <key2> a    11
 #> 4 b     <key2> b    15
-
-fr_sum %>% 
+fr_sum |> 
   climb(key3)
 #> # A forest: 8 nodes and 1 feature
-#> # Roots:    key3 [8]
+#> # Trees:
+#> #   key3 [8]
 #>   .        value
 #>   <node>   <int>
 #> 1 <key3> a     1
@@ -108,4 +121,71 @@ fr_sum %>%
 #> 6 <key3> b     6
 #> 7 <key3> a     7
 #> 8 <key3> b     8
+```
+
+``` r
+fr1 <- tidyr::expand_grid(key1 = letters[1:2], 
+                          key2_1 = letters[1:2],
+                          key3_1 = letters[1:2]) |> 
+  mutate(value = row_number()) |> 
+  forest_by(key1, key2_1, key3_1) |> 
+  summarise(value = sum(value))
+
+fr2 <- tidyr::expand_grid(key1 = letters[1:2], 
+                          key2_2 = letters[1:2],
+                          key3_2 = letters[1:2]) |> 
+  mutate(value = row_number()) |> 
+  forest_by(key1, key2_2, key3_2) |> 
+  summarise(value = sum(value))
+
+fr <- rbind(fr1, fr2)
+fr_sum <- fr |> 
+  summarise(value = sum(value))
+
+fr
+#> # A forest: 24 nodes and 1 feature
+#> # Groups:   key1 [2]
+#> # Trees:
+#> #   key2_1 [4]
+#> #   └─key3_1 [8]
+#> #   key2_2 [4]
+#> #   └─key3_2 [8]
+#>   key1  .          value
+#>   <chr> <node>     <int>
+#> 1 a     <key2_1> a     3
+#> 2 a     <key2_1> b     7
+#> 3 b     <key2_1> a    11
+#> 4 b     <key2_1> b    15
+#> 5 a     <key2_2> a     3
+#> 6 a     <key2_2> b     7
+#> 7 b     <key2_2> a    11
+#> 8 b     <key2_2> b    15
+fr_sum
+#> # A forest: 26 nodes and 1 feature
+#> # Trees:
+#> #   key1 [2]
+#> #   ├─key2_1 [4]
+#> #   │ └─key3_1 [8]
+#> #   └─key2_2 [4]
+#> #     └─key3_2 [8]
+#>   .        value
+#>   <node>   <int>
+#> 1 <key1> a    20
+#> 2 <key1> b    52
+map_forest(fr_sum,
+           function(x, children) {
+             x$value <- prod(children$value)
+             x
+           })
+#> # A forest: 26 nodes and 1 feature
+#> # Trees:
+#> #   key1 [2]
+#> #   ├─key2_1 [4]
+#> #   │ └─key3_1 [8]
+#> #   └─key2_2 [4]
+#> #     └─key3_2 [8]
+#>   .          value
+#>   <node>     <int>
+#> 1 <key1> a     576
+#> 2 <key1> b 2822400
 ```
