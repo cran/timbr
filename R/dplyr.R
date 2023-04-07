@@ -3,6 +3,7 @@
 #' dplyr methods for forest objects.
 #'
 #' @param .data A forest.
+#' @param data A forest.
 #' @param ... Other arguments.
 #' @param .node `NULL` (default) or a vector to create new nodes.
 #' @param x A forest.
@@ -295,9 +296,9 @@ timbr_match <- function(needles, needle_locs, haystacks, haystack_locs) {
 #' @rdname dplyr
 #' @importFrom dplyr rowwise
 #' @export
-rowwise.forest <- function(.data, ...) {
-  class(.data) <- c("rowwise_forest", class(.data))
-  .data
+rowwise.forest <- function(data, ...) {
+  class(data) <- c("rowwise_forest", class(data))
+  data
 }
 
 is_rowwise_forest <- function(x) {

@@ -1,3 +1,8 @@
+# timbr 0.2.1
+
+* Rename the argument for `rowwise.forest()`.
+* Fix problems with CRAN checks.
+
 # timbr 0.2.0
 
 * Now, display the tree structure in the header of `forest`.

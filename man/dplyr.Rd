@@ -24,7 +24,7 @@
 
 \method{rows_patch}{forest}(x, y, by = NULL, ...)
 
-\method{rowwise}{forest}(.data, ...)
+\method{rowwise}{forest}(data, ...)
 
 \method{ungroup}{forest}(x, ...)
 }
@@ -40,6 +40,8 @@
 \item{y}{A data frame.}
 
 \item{by}{An unnamed character vector giving the key columns.}
+
+\item{data}{A forest.}
 }
 \value{
 A forest.
