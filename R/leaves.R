@@ -10,7 +10,7 @@ leaves <- function(data) {
   nodes <- data$nodes
 
   node_parents <- nodes$.$parent
-  node_parents <- vec_slice(node_parents, !vec_equal_na(node_parents))
+  node_parents <- vec_slice(node_parents, !vec_detect_missing(node_parents))
   node_locs <- vec_as_location(-node_parents, vec_size(nodes))
 
   data_root <- data
@@ -19,12 +19,12 @@ leaves <- function(data) {
   data_root$nodes$root <- NA_integer_
   vec_slice(data_root$nodes$root, root_locs) <- root_locs
 
-  data_root <- map_forest(data_root,
-                          function(x, y) {
-                            x$root <- y$root
-                            x
-                          },
-                          .climb = TRUE)
+  data_root <- traverse(data_root,
+                        function(x, y) {
+                          x$root <- y$root
+                          x
+                        },
+                        .climb = TRUE)
   needles <- vec_slice(data_root$nodes$root, node_locs)
   new_roots <- vec_slice(roots,
                          vec_match(needles, roots$.))

@@ -10,23 +10,23 @@
 #' @return A forest.
 #'
 #' @export
-map_forest <- function(.x, .f, ...,
-                       .climb = FALSE) {
+traverse <- function(.x, .f, ...,
+                     .climb = FALSE) {
   .f <- purrr::as_mapper(.f, ...)
 
-  .x$nodes <- map_forest_impl(.x$nodes, .f,
-                              .climb = .climb)
+  .x$nodes <- traverse_impl(.x$nodes, .f,
+                            .climb = .climb)
   .x
 }
 
-map_forest_impl <- function(nodes, .f,
-                            .climb = FALSE) {
+traverse_impl <- function(nodes, .f,
+                          .climb = FALSE) {
   node_names <- nodes$.$name
   node_parents <- nodes$.$parent
   node_data <- drop_node(nodes)
 
   grps <- vec_group_loc(node_parents)
-  grps <- vec_slice(grps, !vec_equal_na(grps$key))
+  grps <- vec_slice(grps, !vec_detect_missing(grps$key))
   grps <- vec_slice(grps,
                     vec_order(grps$key,
                               direction = if (.climb) "desc" else "asc"))
